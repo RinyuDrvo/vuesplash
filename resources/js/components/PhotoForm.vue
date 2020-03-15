@@ -74,7 +74,7 @@ export default {
       //読み込まれたファイルはデータURL形式で受け取れる(上記onload参照)
       reader.readAsDataURL(event.target.files[0])
 
-        this.photo = event.target.files[0]
+      this.photo = event.target.files[0]
     },
     //入力欄の値とプレビュー表示をクリアするメソッド
     reset(){
