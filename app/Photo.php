@@ -12,7 +12,7 @@ class Photo extends Model
     protected $keyType='string';
 
     //ページネーション1ページあたりの項目数
-    protected $perPage = 3;
+    protected $perPage = 5;
 
     /** JSONに含める属性 */
     protected $appends = [
