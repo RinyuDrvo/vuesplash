@@ -11,6 +11,9 @@ class Photo extends Model
     //プライマリキーの型宣言
     protected $keyType='string';
 
+    //ページネーション1ページあたりの項目数
+    protected $perPage = 3;
+
     /** JSONに含める属性 */
     protected $appends = [
         'url',

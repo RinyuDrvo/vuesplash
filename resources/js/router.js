@@ -16,7 +16,13 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    component: PhotoList
+    component: PhotoList,
+    //PhotoListコンポーネントにクエリパラメータpageの値が、pageというpropsとして渡される
+    props: route => {
+      //routeからクエリパラメータpageを取り出した上で正規表現を使って整数と解釈されない値は「1」を返す
+      const page = route.query.page
+      return { page: /^[1-9][0-9]*$/.test(page) ? page * 1 : 1 }
+    }
   },
   {
     path: '/photos/:id',
@@ -43,6 +49,9 @@ const routes = [
 //VueRouterインスタンスを作成する
 const router = new VueRouter({
   mode: 'history',
+  scrollBehavior() {
+    return { x: 0, y: 0 }
+  },
   routes
 })
 
