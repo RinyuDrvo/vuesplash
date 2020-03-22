@@ -12,8 +12,14 @@
       <figcaption>Posted by {{ photo.owner.name }}</figcaption>
     </figure>
     <div class="photo-detail__pane">
-      <button class="button button--like" title="Like photo">
-        <i class="icon ion-md-heart"></i>12
+      <!-- いいねボタン -->
+      <button
+        class="button button--like"
+        :class="{ 'button--liked': photo.liked_by_user }"
+        title="Like photo"
+        @click="onLikeClick"
+      >
+        <i class="icon ion-md-heart"></i>{{ photo.likes_count }}
       </button>
       <a
         :href="`/photos/${photo.id}/download`"
@@ -76,6 +82,7 @@ export default {
     }
   },
   methods: {
+    //写真取得
     async fetchPhoto () {
       const response = await axios.get(`/api/photos/${this.id}`)
 
@@ -86,6 +93,7 @@ export default {
 
       this.photo = response.data
     },
+    //コメント入力
     async addComment () {
       //web apiよりコメントをPOST
       const response = await axios.post(`/api/photos/${this.id}/comments`, {
@@ -115,6 +123,50 @@ export default {
         response.data,
         ...this.photo.comments
       ]
+    },
+    //いいねクリック時動作
+    onLikeClick () {
+      if (! this.isLogin) {
+        alert('いいね機能を使うにはログインしてください')
+        return false
+      }
+
+      //既にいいねされていればいいね削除
+      if (this.photo.liked_by_user) {
+        this.unlike()
+      } else {
+        this.like()
+      }
+    },
+    //いいね
+    async like () {
+      //いいねAPI
+      const response = await axios.put(`/api/photos/${this.id}/like`)
+
+      //エラー処理
+      if (response.status !== OK) {
+        this.$store.commit('error/setCode', response.status)
+        return false
+      }
+
+      //表示更新
+      this.photo.likes_count = this.photo.likes_count + 1
+      this.photo.liked_by_user = true
+    },
+    //いいね削除
+    async unlike () {
+      //いいねAPIに削除
+      const response = await axios.delete(`/api/photos/${this.id}/like`)
+
+      //エラー処理
+      if (response.status !== OK) {
+        this.$store.commit('error/setCode', response.status)
+        return false
+      }
+
+      //表示更新
+      this.photo.likes_count = this.photo.likes_count - 1
+      this.photo.liked_by_user = false
     }
   },
   watch: {

@@ -6,6 +6,7 @@
         v-for="photo in photos"
         :key="photo.id"
         :item="photo"
+        @like="onLikeClick"
       />
     </div>
     <Pagination :current-page="currentPage" :last-page="lastPage" />
@@ -51,6 +52,58 @@ export default {
 
       this.currentPage = response.data.current_page
       this.lastPage = response.data.last_page
+    },
+    //いいねが押されたら
+    onLikeClick ({ id, liked }) {
+      if (! this.$store.getters['auth/check']) {
+        alert('いいね機能を使うにはログインしてください')
+        return false
+      }
+
+      //すでにいいねされていたらいいね削除
+      if (liked) {
+        this.unlike(id)
+      } else {
+        this.like(id)
+      }
+    },
+    //いいねメソッド
+    async like (id) {
+      //APIにいいねする
+      const response = await axios.put(`/api/photos/${id}/like`)
+
+      if (response.status !== OK) {
+        this.$store.commit('error/setCode', response.status)
+        return false
+      }
+
+      //いいね数とボタンの色を更新
+      this.photos = this.photos.map(photo => {
+        if (photo.id === response.data.photo_id) {
+          photo.likes_count += 1
+          photo.liked_by_user = true
+        }
+        return photo
+      })
+    },
+    //いいね削除メソッド
+    async unlike (id) {
+      //APIにいいね削除する
+      const response = await axios.delete(`/api/photos/${id}/like`)
+
+      if (response.status !== OK) {
+        this.$store.commit('error/setCode', response.status)
+        return false
+      }
+
+      //いいね数とボタンの色を更新
+      this.photos = this.photos.map(photo => {
+        if (photo.id === response.data.photo_id) {
+          photo.likes_count -= 1
+          photo.liked_by_user = false
+        }
+        return photo
+      })
     }
   },
   watch: {
