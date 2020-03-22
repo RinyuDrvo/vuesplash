@@ -24,7 +24,7 @@ class PhotoController extends Controller
      */
     public function index()
     {
-        $photos = Photo::with(['owner'])
+        $photos = Photo::with(['owner', 'likes'])
             ->orderBy(Photo::CREATED_AT, 'desc')->paginate();
 
         return $photos;
@@ -100,7 +100,7 @@ class PhotoController extends Controller
     public function show(string $id)
     {
         //指定idの写真とコメントを取得
-        $photo = Photo::where('id', $id)->with(['owner', 'comments.author'])->first();
+        $photo = Photo::where('id', $id)->with(['owner', 'comments.author', 'likes'])->first();
         //データなければ404を返す
         return $photo ?? abort(404);
     }
