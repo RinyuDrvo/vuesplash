@@ -123,4 +123,45 @@ class PhotoController extends Controller
 
          return response($new_comment, 201);
      }
+
+     /**
+      * いいね
+      * @param string $id
+      * @return array
+      */
+      public function like(string $id)
+      {
+          $photo = Photo::where('id', $id)->with('likes')->first();
+
+          if (! $photo) {
+              abort(404);
+          }
+
+          //何回実行してもいいねが1つしかつかないようにする
+          //いいね削除
+          $photo->likes()->detach(Auth::user()->id);
+          //いいね追加
+          $photo->likes()->attach(Auth::user()->id);
+
+          return ["photo_id" => $id];
+      }
+
+      /**
+       * いいね削除
+       * @param string $id
+       * @return array
+       */
+      public function unlike(string $id)
+      {
+          $photo = Photo::where('id', $id)->with('likes')->first();
+
+          if (! $photo) {
+            abort(404);
+          }
+
+          //いいね削除
+          $photo->likes()->detach(Auth::user()->id);
+
+          return ["photo_id" => $id];
+      }
 }
