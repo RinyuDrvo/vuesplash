@@ -9,6 +9,8 @@ import SystemError from './pages/errors/System.vue'
 
 import PhotoDetail from './pages/PhotoDetail.vue'
 
+import NotFound from './pages/errors/NotFound.vue'
+
 //VueRouterプラグインを使用する
 Vue.use(VueRouter)
 
@@ -43,6 +45,11 @@ const routes = [
   {
     path: '/500',
     component: SystemError
+  },
+  {
+    //定義されたルート以外のアクセスを404へ
+    path: '*',
+    component: NotFound
   }
 ]
 
