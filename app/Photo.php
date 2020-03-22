@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class Photo extends Model
 {
@@ -14,14 +15,15 @@ class Photo extends Model
     //ページネーション1ページあたりの項目数
     protected $perPage = 5;
 
-    /** JSONに含める属性 */
+    /** JSONに含めるアクセサ */
     protected $appends = [
-        'url',
+        'url', 'likes_count', 'liked_by_user'
     ];
 
     //JSONに含める属性
     protected $visible = [
-        'id', 'owner', 'url', 'comments'
+        'id', 'owner', 'url', 'comments',
+        'likes_count', 'liked_by_user'
     ];
 
 
@@ -100,5 +102,30 @@ class Photo extends Model
     public function likes()
     {
         return $this->belongsToMany('App\User', 'likes')->withTimestamps();
+    }
+
+    /**
+     * アクセサ - likes_count
+     * @return int
+     */
+    public function getLikesCountAttribute()
+    {
+        return $this->likes->count();
+    }
+
+    /**
+     * アクセサ - liked_by_user
+     * @return boolean
+     */
+    public function getLikedByUserAttribute()
+    {
+        if (Auth::guest()){
+            return false;
+        }
+
+        //ログインユーザーのIDと合致するいいねが含まれているか
+        return $this->likes->contains(function ($user) {
+            return $user->id === Auth::user()->id;
+        });
     }
 }
